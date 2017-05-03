@@ -14,7 +14,7 @@ class Templater {
     
     public function output() {
         $content = $this->getComments();
-        $content .= $this->getContent();
+        $content .= $this->getContentNew();
         if (is_null($this->params->output)) {
             Logger::info("Writing migration file to ".getcwd()."/migration.sql");
             file_put_contents('migration.sql', $content);
@@ -41,6 +41,15 @@ class Templater {
         eval($compiled);
         $content = ob_get_contents();
         ob_end_clean();
+        return $content;
+    }
+    
+    private function getContentNew() {
+        $template = $this->getTemplate();
+        $up = trim($this->up, "\n");
+        $down = trim($this->down, "\n");
+        $content = preg_replace(array('/\{\{\s?\$up\s?\}\}/', '/\{\{\s?\$down\s?\}\}/'), 
+                   array($up, $down),$template );
         return $content;
     }
 
